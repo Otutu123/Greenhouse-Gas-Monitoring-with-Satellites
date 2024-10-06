@@ -1,0 +1,142 @@
+Greenhouse-Gas-Monitoring-with-Satellites
+
+This project focuses on tracking methane levels in the Niger Delta using satellite imagery, machine learning (ML) algorithms, and advanced geospatial techniques. Methane (CH4) is a potent greenhouse gas (GHG) that significantly contributes to global warming. Accurate monitoring of methane emissions is crucial for enforcing climate agreements and developing effective mitigation strategies, especially in regions like the Niger Delta, where oil and gas operations contribute to GHG emissions.
+Project Description
+Objective
+
+The objective of this project is to monitor methane levels over the Niger Delta using satellite data, leveraging machine learning algorithms to detect anomalies and assess trends. The integration of Earth Observation (EO) data and ML techniques allows us to analyze large datasets efficiently, providing accurate and real-time insights into methane emissions. This project will:
+
+    Map and visualize methane emissions across the Niger Delta.
+    Detect anomalies in methane levels to identify potential leaks or high-emission areas.
+    Support decision-making for climate policy and environmental enforcement.
+
+Techniques
+Image Recognition
+
+Satellite imagery provides detailed spatial and temporal data on methane emissions. Using image recognition techniques, we extract relevant features from the Sentinel-5P TROPOMI dataset, which captures global methane concentration levels. The image recognition models help in identifying patterns in methane emission sources, such as oil and gas infrastructure.
+Anomaly Detection
+
+Machine learning models are used to detect unusual increases in methane emissions. By training models on historical data, we identify anomalies that indicate significant leaks or emissions, which are critical for timely intervention. These detections are crucial for both regulatory enforcement and mitigating environmental harm.
+Data Fusion
+
+The combination of multiple data sources, such as satellite imagery, land use data, and meteorological information, enhances the accuracy of methane monitoring. By fusing these datasets, we achieve a more comprehensive understanding of emission patterns and their potential causes. This approach is essential for pinpointing methane sources, especially in a complex environment like the Niger Delta.
+Satellite Data Sources
+
+The project primarily uses data from the Sentinel-5P TROPOMI (Tropospheric Monitoring Instrument) satellite, specifically its methane (CH4) dataset. TROPOMI provides high-resolution methane concentration data on a global scale, which is ideal for monitoring emissions in the Niger Delta. The key dataset used is:
+
+    COPERNICUS/S5P/OFFL/L3_CH4: This dataset provides the methane column volume mixing ratio in dry air, measured in parts per billion (ppb).
+
+Data Processing
+
+The dataset is filtered for the year 2023 and clipped to the Area of Interest (AOI), which covers the Niger Delta region. The methane levels are then averaged (mean) over the year to create a composite for visualization. This composite highlights methane emission hotspots in the region and allows for comparison across different time periods.
+
+The code below demonstrates the data processing steps in Google Earth Engine (GEE):
+
+javascript
+
+// Load Sentinel-5P TROPOMI methane (CH4) dataset
+var methane = ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_CH4')
+  .filterDate('2023-01-01', '2023-12-31') // Use the year 2023
+  .select('CH4_column_volume_mixing_ratio_dry_air')
+  .filterBounds(aoi);
+
+// Composite the dataset for visualization
+var methaneMean = methane.mean().clip(aoi);
+
+// Define visualization parameters with 5 classes for methane levels
+var visParams = {
+  min: 1750,  // Minimum methane level
+  max: 2000,  // Maximum methane level
+  palette: ['blue', 'green', 'yellow', 'orange', 'red'], // 5 class colors
+};
+
+// Add methane composite to the map
+Map.centerObject(aoi, 7); // Zoom to Niger Delta
+Map.addLayer(methaneMean, visParams, 'Methane Levels');
+
+Visualization
+
+The methane data is visualized using a color-coded map to represent different levels of methane concentrations. The palette ranges from blue (low methane levels) to red (high methane levels), with five distinct classes:
+
+    Blue: < 1800 ppb
+    Green: 1800 - 1850 ppb
+    Yellow: 1850 - 1900 ppb
+    Orange: 1900 - 1950 ppb
+    Red: > 1950 ppb
+
+This visualization helps in easily identifying regions with high methane emissions and understanding spatial distribution patterns. A legend is also added to the map for clarity.
+
+javascript
+
+// Create a color bar legend for the methane classes
+var legend = ui.Panel({
+  style: {
+    position: 'bottom-right',
+    padding: '8px 15px'
+  }
+});
+
+// Create a title for the legend
+var legendTitle = ui.Label({
+  value: 'Methane Levels (ppb)',
+  style: {
+    fontWeight: 'bold',
+    fontSize: '16px',
+    margin: '0 0 4px 0',
+    padding: '0'
+  }
+});
+legend.add(legendTitle);
+
+// Define classes and add them to the legend
+var classes = [
+  {color: 'blue', name: '< 1800 ppb'},
+  {color: 'green', name: '1800 - 1850 ppb'},
+  {color: 'yellow', name: '1850 - 1900 ppb'},
+  {color: 'orange', name: '1900 - 1950 ppb'},
+  {color: 'red', name: '> 1950 ppb'}
+];
+
+// Loop through the classes and add them to the legend
+classes.forEach(function(classItem) {
+  legend.add(makeRow(classItem.color, classItem.name));
+});
+
+// Add the legend to the map
+Map.add(legend);
+
+Machine Learning Integration
+
+Machine learning plays a key role in this project by automating the detection of methane anomalies. The anomaly detection model is trained on historical methane data to identify regions where emissions deviate from expected levels. These anomalies often indicate methane leaks or other emission events.
+
+The ML model employed uses supervised learning with a dataset of known emission sources (oil and gas facilities) to predict likely high-emission areas. This model is continuously refined as new data becomes available.
+Steps in Anomaly Detection
+
+    Data Preprocessing: Raw methane data is cleaned and standardized for consistency.
+    Feature Extraction: Relevant features, such as methane concentration, wind speed, and land cover, are extracted from the data.
+    Model Training: A supervised ML model is trained on labeled datasets to detect methane anomalies.
+    Anomaly Detection: The model flags areas with unexpected methane levels for further investigation.
+
+Impact on Climate Policy
+
+Monitoring methane emissions in real-time is critical for meeting the targets set by international climate agreements, such as the Paris Agreement. The Niger Delta is a significant contributor to methane emissions due to its extensive oil and gas industry. By identifying and mitigating these emissions, policymakers can:
+
+    Enhance Regulatory Enforcement: Satellite data can provide evidence for enforcing environmental regulations and holding companies accountable for their emissions.
+    Support Climate Mitigation Strategies: Detecting methane leaks early helps in taking immediate actions to reduce GHG emissions.
+    Inform Policy Development: Data-driven insights from this project can guide the formulation of policies aimed at reducing methane emissions and mitigating climate change.
+
+Future Work
+Expansion to Other Regions
+
+While this project focuses on the Niger Delta, the techniques and methodologies can be expanded to other oil and gas-producing regions globally. By scaling the model, we can monitor methane emissions in regions like the Gulf of Mexico or the North Sea, providing valuable data for global methane mitigation efforts.
+Integration with Other GHG Datasets
+
+In the future, this project could integrate additional greenhouse gases, such as carbon dioxide (CO2) and nitrous oxide (N2O), to provide a comprehensive GHG monitoring solution. This would allow for a more holistic approach to tackling climate change.
+Real-Time Monitoring Dashboard
+
+A web-based dashboard could be developed to provide real-time monitoring of methane emissions, allowing stakeholders to track changes and respond to anomalies quickly. The dashboard would include visualization tools, trend analysis, and predictive models for future emissions.
+Conclusion
+
+Greenhouse gas monitoring with satellites is a powerful tool for addressing the urgent challenge of methane emissions. By using satellite imagery, machine learning, and data fusion, this project provides critical insights into methane levels in the Niger Delta, enabling better enforcement of climate agreements and supporting global efforts to reduce GHG emissions.
+
+This project is just the beginning of a larger initiative to leverage advanced technologies for environmental protection and climate change mitigation.
